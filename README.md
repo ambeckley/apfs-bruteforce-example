@@ -31,40 +31,40 @@ Benchmarked on M4 Max (40 GPU cores, 16 CPU cores, 128GB RAM) against APFS volum
 ## Build
 
 ```bash
-make brute-force-pro
+make
 ```
 
-This produces `apfs_brute_force_pro`. The Metal shader (`pbkdf2.metal`) is compiled at runtime.
+This produces `apfs_brute_force`. The Metal shader (`pbkdf2.metal`) is compiled at runtime.
 
 ## Usage
 
 ### Test a known password
 
 ```bash
-./apfs_brute_force_pro encrypted.dmg --test-password mypassword
+./apfs_brute_force encrypted.dmg --test-password mypassword
 ```
 
 ### Brute force attack
 
 ```bash
 # Lowercase, up to 5 characters
-./apfs_brute_force_pro encrypted.dmg --charset lower --max-length 5
+./apfs_brute_force encrypted.dmg --charset lower --max-length 5
 
 # Alphanumeric, 4-6 characters
-./apfs_brute_force_pro encrypted.dmg --charset alphanumeric --min-length 4 --max-length 6
+./apfs_brute_force encrypted.dmg --charset alphanumeric --min-length 4 --max-length 6
 
 # Custom character set
-./apfs_brute_force_pro encrypted.dmg --charset "abc123!@#" --max-length 8
+./apfs_brute_force encrypted.dmg --charset "abc123!@#" --max-length 8
 ```
 
 ### Dictionary attack
 
 ```bash
 # Basic dictionary
-./apfs_brute_force_pro encrypted.dmg --dict wordlist.txt
+./apfs_brute_force encrypted.dmg --dict wordlist.txt
 
 # Dictionary with mutation rules (capitalize, append digits, leet speak, etc.)
-./apfs_brute_force_pro encrypted.dmg --dict wordlist.txt --rules
+./apfs_brute_force encrypted.dmg --dict wordlist.txt --rules
 ```
 
 ### Options
@@ -123,7 +123,7 @@ Step 1 is the bottleneck: 200,000 sequential SHA256 compressions per password.
 - Minimal per-thread storage (~224 bytes) for maximum GPU occupancy
 - Double-buffered dispatch: overlaps GPU compute with batch prep and result checking
 
-**CPU (ARM SHA2 intrinsics — `apfs_brute_force_pro.mm`):**
+**CPU (ARM SHA2 intrinsics — `apfs_brute_force.mm`):**
 - Hardware SHA256 using `vsha256hq_u32` / `vsha256h2q_u32` / `vsha256su0q_u32` / `vsha256su1q_u32`
 - 2-way interleaved SHA256: processes two passwords simultaneously to hide ARM SHA2 instruction latency (~3 cycle latency, 1 cycle throughput)
 - HMAC midstate caching (same principle as GPU)
@@ -168,7 +168,7 @@ Creates a 50MB encrypted APFS disk image with the given password.
 
 ## Files
 
-- `apfs_brute_force_pro.mm` — Main brute force tool (C++/Objective-C++, ~1800 lines)
+- `apfs_brute_force.mm` — Main brute force tool (C++/Objective-C++, ~1800 lines)
 - `pbkdf2.metal` — Metal GPU compute shader for PBKDF2-SHA256
 - `Makefile` — Build system
 - `create_simple_encrypted_image.py` — Test image creation script
